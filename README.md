@@ -1,0 +1,2 @@
+# javascriptobfuscator
+Encrypting javascript 

@@ -101,7 +101,7 @@
     <script>
       "use strict";
 
-      var globalstrings = [];
+      var globalvariables = [];
       
 
        var JS = {};
@@ -143,7 +143,7 @@
                     console.log('codecheck');
                     JS = {};
                     JS.code = 'a =1;';
-                    JS.globalstrings = [];
+                    JS.globalvariables = [];
                     JS.initiatevalidity = function(a) {
                         try {
                             rex = new Function(a);
@@ -162,8 +162,8 @@
                            let t = output[i].match(/^var/);
                            try{
                               if(typeof t.input !== null){
-                                var globalstrings = [];
-                                JS.globalstrings.push(t.input);
+                                var globalvariables = [];
+                                JS.globalvariables.push(t.input);
                                }
                            }
                            catch(err){
@@ -177,8 +177,9 @@
 
                       }
 
-                    JS.checkundeclared = function(globalstrings,string){
-                      console.log(globalstrings);
+                    JS.checkundeclared = function(globalvariables,variables){
+                      console.log('global variables', globalvariables);
+                      console.log('variables', variables);
                     };
 
                     JS.validate = function(a) {
@@ -207,9 +208,8 @@
 
 
 
-                    JS.getallVariables(JS.code);
-                    let string = 'a';
-                    JS.checkundeclared(JS.globalstrings,string);
+                    
+                    JS.checkundeclared(JS.globalvariables,JS.getallVariables(JS.code));
 
 
 

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="FBG">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Online Javascript Obfuscator and validator</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="https://getbootstrap.com/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="https://getbootstrap.com/examples/jumbotron/jumbotron.css" rel="stylesheet">
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="https://getbootstrap.com/assets/js/ie-emulation-modes-warning.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
+    <style>
+        #javascriptcode {
+            width: 500px;
+            height: 300px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        #javascriptencoded {
+            width: 300px;
+            height: 300px;
+        }
+
+        .line-numbers {
+            display: inline-block;
+            padding: 5px;
+            height: 300px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body ng-controller="MainCtrl">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Online Javascript Obfuscator and validator</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+            </div>
+            <!--/.navbar-collapse -->
+        </div>
+    </nav>
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <div class="container">
+            <p>Encode and validate your javascript code</p>
+            <p>email: adrivanrex@gmail.com</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <form>
+                <div class="form-group">
+                    <div class="line-numbers" id="linenumber">
+                        <div ng-repeat="mode in number">
+                            {{mode}}
+                        </div>
+                    </div>
+                    <textarea rows="15" cols="65" type="text" onscroll="gotScrolled()" ng-change="javascriptcodecheck(this)" ng-trim="false" ng-model="javascriptcode" id="javascriptcode" placeholder="Javascript Code" class="form-control"></textarea>
+                    <textarea ng-show="result" type="text" ng-change="javascriptencoded(this)" ng-trim="false" ng-model="javascriptencoded" id="javascriptencoded"></textarea>
+                    <div ng-show="resulterror" class="alert alert-danger">
+                        <strong>Error!</strong> {{javascriptcodeerror}}
+                    </div>
+                </div>
+        </div>
+        </form>
+    </div>
+    <hr>
+    <footer>
+        <p>&copy; 2016 Company, Inc.</p>
+    </footer>
+    </div>
+    <!-- /container -->
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+      "use strict";
+
+      var globalstrings = [];
+      
+
+       var JS = {};
+       var rex = [];
+
+        function gotScrolled() {
+            let textareascroll = document.getElementById("javascriptcode");
+            console.log(textareascroll.scrollTop);
+            document.getElementById("linenumber").scrollTop = textareascroll.scrollTop;
+        }
+        /** text area indent **/
+
+        var textareas = document.getElementsByTagName('textarea');
+        var count = textareas.length;
+        for (var i = 0; i < count; i++) {
+            textareas[i].onkeydown = function(e) {
+                if (e.keyCode == 9 || e.which == 9) {
+                    e.preventDefault();
+                    var s = this.selectionStart;
+                    this.value = this.value.substring(0, this.selectionStart) + "\t" + this.value.substring(this.selectionEnd);
+                    this.selectionEnd = s + 1;
+                }
+            }
+        }
+
+
+
+        angular.module('FBG', [])
+
+            .controller('MainCtrl', ['$scope', '$http', '$document', '$element', function($scope, $http, $document, $element) {
+
+                $scope.number = [0];
+                $scope.getNumber = function(num) {
+                    return new Array(num);
+                }
+
+
+                $scope.javascriptcodecheck = function(obj, $event) {
+                    console.log('codecheck');
+                    JS = {};
+                    JS.code = 'a =1;';
+                    JS.globalstrings = [];
+                    JS.initiatevalidity = function(a) {
+                        try {
+                            rex = new Function(a);
+                        } catch (err) {
+                            err.invalid = false;
+                            return err;
+                        }
+                    }
+
+                    JS.getallVariables = function(a){
+                        let string = a;
+
+                        let output =  string.split(';').map(exp => exp.split('=')[0]).filter(x => x);
+                        
+                        for(var i = 0 ; i<output.length ; i++){
+                           let t = output[i].match(/^var/);
+                           try{
+                              if(typeof t.input !== null){
+                                var globalstrings = [];
+                                JS.globalstrings.push(t.input);
+                               }
+                           }
+                           catch(err){
+
+                           }
+                           
+
+                        }
+
+                        return output;
+
+                      }
+
+                    JS.checkundeclared = function(globalstrings,string){
+                      console.log(globalstrings);
+                    };
+
+                    JS.validate = function(a) {
+                        let validate = this.initiatevalidity(this.code);
+                        if (typeof validate == 'undefined') {
+                            return true;
+                        } else {
+                            return {
+                                "message": validate
+                            };
+                        }
+                    }
+                    JS.numbertoArray = function(num) {
+                        let rex = new Array(num);
+                        for (var i = rex.length - 1; i >= 0; i--) {
+                            rex[i] = i;
+                        }
+                        return rex;
+
+                    }
+
+                    JS.code = obj.javascriptcode;
+
+                    var linumberdivscroll = document.getElementById("linenumber");
+                    linumberdivscroll.scrollTop = linumberdivscroll.scrollHeight;
+
+
+
+                    JS.getallVariables(JS.code);
+                    let string = 'a';
+                    JS.checkundeclared(JS.globalstrings,string);
+
+
+
+                    let lines = JS.code.split(/\r|\r\n|\n/);
+                    let count = lines.length;
+                    $scope.number = JS.numbertoArray(count);
+
+                    if (typeof JS.validate() == 'object') {
+
+                        $scope.javascriptcodeerror = JS.validate().message.stack;
+                        $scope.result = false;
+                        $scope.resulterror = true;
+                    } else {
+                        $scope.result = true;
+                        $scope.resulterror = false;
+                        $scope.javascriptencoded = JS.code;
+                    }
+
+
+
+                };
+            }]);
+    </script>
+    </script>
+</body>
+
+</html>

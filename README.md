@@ -1,4 +1,5 @@
-# javascriptobfuscator
-Encrypting javascript 
+# JSON-verifier
 
-Live link: https://adrivanrex.github.io/javascriptobfuscator/
+Verify json errors 
+
+Live link:  https://adrivanrex.github.io/JSON-v/
